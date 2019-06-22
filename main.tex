@@ -1,0 +1,33 @@
+\documentclass{llncs} %{IEEEtran}
+
+\usepackage{pythonhl}
+
+\usepackage{fancyhdr} 
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RE,LO]{Pylog}
+\fancyhead[LE,RO]{\thepage}
+
+% \usepackage{hyperref}
+
+\begin{document}
+
+\title{Pylog$\colon$ Prolog in Python}
+% \author{Russ Abbott \and Jungsoo Lim  \and Jay Patel }
+% \authorrunning{R. Abbott, \textit{et. al.}}
+% \institute{California State University, Los Angeles, Department of Computer Science \\
+%           \email{\{rabbott, jlim34, jpatel77\}@calstatela.edu}} 
+\maketitle
+
+\input{abstract.tex}
+\input{introduction.tex}
+\input{body.tex}
+\input{listings.tex}
+\input{logic_variables.tex}
+%\input{test.tex}
+\input{zebra_problem.tex}
+\input{conclusion.tex}
+%\input{biblio.tex}
+\bibliographystyle{plain}
+\bibliography{pylog.bib}
+\end{document}

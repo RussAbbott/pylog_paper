@@ -1,0 +1,196 @@
+\section{Logic variables}\label{subsec:logic_variables}
+The following diagram shows Pylog's primary logic variable classes. \textittt{Term}, the root class, is abstract. This section discusses \textittt{PyValue}, \textittt{Var}, \textittt{Structure}, and \textittt{LinkedList}. 
+
+% \section{Diagram Test}
+\begin{figure}
+    \centering
+ \setlength{\unitlength}{0.12cm}
+\begin{picture}(75,75)
+    \put(29, 70){$\footnotesize{Term}$}
+    \put(10, 65){\line(1,0){45}}
+    \put(10, 65){\line(0,-1){5}}
+    \put(33, 70){\line(0,-1){10}}
+    \put(55, 65){\line(0,-1){5}}
+    \put(5, 57){$\footnotesize{PyValue}$}
+    \put(30, 57){$\footnotesize{Var}$}
+    \put(50, 57){$\footnotesize{Structure}$}
+    \put(10, 51){\line(0, 1){5}}
+    \put(2, 51){\line(1,0){27}}  
+    \put(55, 51){\line(0,1){5}}
+    \put(2, 47){$\footnotesize{int, float, string, etc.}$}
+    \put(48, 48){$\footnotesize{SuperSequence}$}
+    \put(55, 42){\line(0,1){5}}
+    \put(35, 33){$\footnotesize{LinkedList}$}
+    \put(60, 33){$\footnotesize{PySequence}$}
+    \put(40, 42){\line(1,0){30}}
+    \put(40, 42){\line(0,-1){5}}
+    \put(70, 42){\line(0,-1){5}}
+    \put(55, 17){$\footnotesize{PyList}$}
+    \put(72, 17){$\footnotesize{PyTuple}$}
+    \put(70, 31){\line(0,-1){5}}
+    \put(60, 25){\line(1,0){20}}
+    \put(60, 25){\line(0,-1){5}}
+    \put(80, 25){\line(0,-1){5}}
+\end{picture}
+\sinv\sinv\sinv\sinv\sinv\sinv\sinv\sinv\sinv
+\sinv\sinv\sinv\sinv\sinv\sinv\sinv\sinv\sinv
+%  \caption{This diagram shows a more complete list.}
+% \label{fig:class_tree}
+\end{figure}
+
+% Pylog includes the following logic variables classes.\footnote{This diagram shows a more complete list.
+% \begin{displaymath}
+% \xymatrixcolsep{1pc}
+%     \xymatrix{& & Term \ar[dl] \ar[d] \ar[drr]  \\
+%     & PyValue \ar[d] & Var & & Structure \ar[d] \\
+%     & \overline{(numbers, strings, ...)} & & & SuperSequence \ar[dl] \ar[dr] \\
+%      &  &  &  PySequence \ar[dl] \ar[dr] & & LinkedList \\
+%      & & PyList & & PyTuple}
+% \end{displaymath}
+% }
+
+\begin{itemize}[label=$\bullet$]
+\item\textbftt{PyValue}. A \textittt{PyValue} serves as the bridge between logic variables and Python values. A \textittt{PyValue} may hold any immutable Python value, such as numbers, strings, and tuples. Unlike Python, tuples are allowed only if their components are also immutable. In the example of the preceding section, the logic variable \textittt{E} with value \textittt{'def'} was actually \textittt{PyValue('def')} behind the scenes.
+\smallv
+
+\item\textbftt{Var}. A \textittt{Var} functions as a traditional logic variable. Unification is surprisingly easy to implement. Each \textittt{Var} object includes a \textittt{next} field. That field is initially \textbftt{None}. When two \textittt{Var}s are unified, the \textittt{next} field of one is set to point to the other. (It makes no difference, which points to which!) A chain of links unify all the included \textittt{Var}s. 
+\smallv
+
+Consider again the example we looked at earlier.
+\begin{python}
+(A, B, C, D, E) = (*n_Vars(4), 'def')
+for _ in unify_pairs([(A, B), (D, C), (A, C), (E, D)]):
+\end{python}
+After the first two unifications, we have the following.
+\begin{equation}\label{eq:one}
+\begin{split}
+A \rightarrow B \\
+D \rightarrow C 
+\end{split}
+\end{equation}
+The next unification, \textittt{A} with \textittt{C}, points \textittt{B} to \textittt{C}. The variable \textittt{B}, rather than \textittt{A}, is pointed to \textittt{C} because \textittt{B} is at the end of \textittt{A}'s unification chain. This produces:
+
+\begin{equation}\label{eq:two}
+\begin{split}
+A \rightarrow B \\
+\downarrow \\
+D \rightarrow C 
+\end{split}
+\end{equation}
+
+Finally, unifying \textittt{E} with \textittt{D} points \textittt{C} to \textittt{E}. First, the system notices that \textittt{D} is a \textittt{Var}, and \textittt{E} is a \textittt{PyValue}. So the link must go from \textittt{D} to \textittt{E}, rather than \textittt{E} to \textittt{D}. Since \textittt{D} is already in a unification chain, it's the end of \textittt{D}'s chain, i.e., \textittt{C}, that gets the pointer to \textittt{E}. The final set of links looks like this.
+
+\begin{equation}\label{eq:three}
+\begin{split}
+A \rightarrow \: &B \\
+&\downarrow \\
+D \rightarrow \: &C \rightarrow E\:('def')
+\end{split}
+\end{equation}
+
+When one needs a value for any \textittt{Var}, the \textittt{Var}'s unification chain is followed to the end. If the end is a \textittt{PyValue}, its value is taken as the \textittt{Var}'s value. That's what we have in state (3). All \textittt{Var}s have the value \textittt{'def'}. 
+\smallv
+
+If the end of a unification chain is an uninstantiated \textittt{Var}, as it was in state (2)---all \textittt{Var}s have \textittt{C} at the end of their unification chains---all the \textittt{Var}'s are mutually unified, but none yet has a value.
+\smallv
+
+\item\textbftt{Structure}. The \textittt{Structure} class enables the construction of Prolog terms. The Zebra puzzle below uses  \textittt{Structure} to create \textittt{house} terms.
+\smallv
+
+A \textittt{Structure} object consists of a functor along with a tuple of values. For the Zebra puzzle, the functor is \textittt{house} and the tuple of values are th house attributes:  \textittt{nationality},  \textittt{cigarette},  \textittt{pet},  \textittt{drink}, and  \textittt{house color}. 
+\smallv
+
+One of the houses in the solution looks like this.
+\begin{python}
+    house(japanese, parliament, zebra, coffee, green)
+\end{python}
+The puzzle asks which house has the zebra. The answer is that it's the house in which the Japanese live.
+\smallv
+
+\textittt{Structure} objects can be unified---but, as in Prolog, only if they have the same functor and the same number of tuple elements. When two \textittt{Structure} objects are unified, their corresponding tuple components are also unified. 
+\smallv
+
+If \textittt{N} and \textittt{P} are \textittt{Var}s, consider unifying the following two \textittt{house} objects.\footnote{Like Prolog, we use underscores for uninstantiated variables whose identities are not of interest. (The corresponding \textittt{Var}s are unified, but that plays no role in this example.)} 
+\begin{python}
+   house(japanese, _, P, coffee, _)
+   house(N, _, zebra, coffee, _)
+\end{python}
+
+Unification would leave both \textittt{house} objects like this:
+\begin{python}
+   house(japanese, _, zebra, coffee, _)
+\end{python}
+This functionality is central to how Prolog solves such puzzles so easily.
+\smallv
+
+(Note that unification would have failed had the two \textittt{house} objects had different values for their \textittt{drink} attribute.)
+
+\item\textbftt{Lists}. Pylog includes two list classes. \textittt{PyList} objects mimic Python tuples. They are fixed in size; they are immutable; and their components are (recursively) required to be immutable.\footnote{There is also a \textittt{PyTuple} class, which mimics the \textittt{PyList} class. The only difference is that \textittt{PyTuple}s  are displayed with parentheses; \textittt{PyList}s  are displayed with square brackets.}
+\smallv
+
+More interestingly, Pylog also offers a \textittt{LinkedList} class. Its functionality is similar to Prolog lists. In particular, a \textittt{LinkedList} may have an uninstantiated tail. (That is not possible with Python lists or \textittt{PyList} objects.)
+\smallv
+
+The paradigmatic Prolog list function is \textittt{append/3}. Pylog's \textittt{append/3} has Prolog functionality for both \textittt{LinkedList}s and \textittt{PyList}s. For example, running:
+
+\begin{minipage}{\linewidth}
+\begin{python}
+(Xs, Ys, Zs) = (Var(), Var(), LinkedList([1, 2, 3]))
+for _ in append(Xs, Ys, Zs):
+  print(f'Xs = {Xs}\nYs = {Ys}\n')
+\end{python}
+\end{minipage}
+produces this output.\footnote{The output is the same whether we use \textittt{PyList}s or \textittt{LinkedList}s.}
+\smallv
+
+\begin{minipage}{\linewidth}
+\begin{python}
+Xs = []
+Ys = [1, 2, 3]
+
+Xs = [1]
+Ys = [2, 3]
+
+Xs = [1, 2]
+Ys = [3]
+
+Xs = [1, 2, 3]
+Ys = []
+\end{python}
+\end{minipage}
+\smallv
+
+Pylog's \textittt{append/3} for \textittt{LinkedList}s parallels Prolog's \textittt{append/3}.
+\smallv
+
+First the Prolog version.
+
+\begin{minipage}{\linewidth}
+\begin{python}
+append([], Ys, Ys).
+append([XZ|Xs], Ys, [XZ|Zs]) :- append(Xs, Ys, Zs).
+\end{python}
+\end{minipage}
+Now the wordier but isomorphic Pylog version.\footnote{To read the code, you should know that \textittt{LinkedList}s may be created in two ways.
+\begin{itemize}
+    \item Pass the \textittt{LinkedList} class the desired head and tail, e.g., \newline\textittt{Xs = LinkedList(Xs\_Head, Xs\_Tail)}.
+    \item Pass the  \textittt{LinkedList} class a Python list. In particular, an empty \textittt{LinkedList} is created through the use of an empty Python list: \textittt{LinkedList([])}
+\end{itemize}
+} (For a cleaner presentation, declarations are dropped. All parameters are: \textittt{Union[LinkedList, Var]}.)
+
+\begin{minipage}{\linewidth}
+\begin{python}
+def append(Xs, Ys, Zs):
+  # Corresponds to: append([], Ys, Ys).
+  yield from unify_pairs([(Xs, LinkedList([])), (Ys, Zs)])
+
+  # Corresponds to: append([XZ|Xs], Ys, [XZ|Zs]) :- append(Xs, Ys, Zs).
+  (XZ_Head, Xs_Tail, Zs_Tail) = n_Vars(3)
+  for _ in unify_pairs([(Xs, LinkedList(XZ_Head, Xs_Tail)),
+                        (Zs, LinkedList(XZ_Head, Zs_Tail))]):
+    yield from append(Xs_Tail, Ys, Zs_Tail)
+
+\end{python}
+\end{minipage}
+Note that  \textbftt{yield} \textbftt{from} appears twice. If after the first \textbftt{yield} \textbftt{from}, \textittt{append/3} is called for another result, e.g., as a result of "backtracking," it continues on to the second \textbftt{yield} \textbftt{from}---just as in Prolog. This is standard for Python generators.
+\end{itemize}

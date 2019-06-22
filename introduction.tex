@@ -1,0 +1,91 @@
+\section{Introduction}
+
+
+
+Prolog, a programming language derived from logic, was developed in the early 1970s. It became very popular during the 1980s as an AI language, especially as part of the Japanese 5th generation project.
+
+Prolog went out of favor because it was difficult to trace the execution of Prolog programs---which made debugging very challenging. But Prolog didn't die and has been making something of a comeback. 
+\begin{itemize}
+    \item SWI Prolog (free), GNU Prolog (free), and Sictus Prolog (commercial) have kept the Prolog flame burning and have large and active communities of Prolog users.
+    \item Sagar \cite{Sagar2019} and Raturi \cite{Raturi2019} both  recommend Prolog for AI programming. 
+\end{itemize}
+\smallv
+Prolog is both one of the syntactically simplest—--you can learn it very quickly--—and at the same time most interesting of all programming language. It is strongly declarative. One first declares facts and rules. (The rules are the Prolog programs.) One then constructs what are called queries, typically with embedded variables, and asks the system to find values for those variables so that the query satisfies the facts and rules. 
+
+Two of Prolog's most distinctive features are logic variables (which support unification) and built-in backtracking search. Prolog was one of the first programming languages with immutable variables. All in all Prolog is seductively elegant and powerful.
+
+Python, of course, is a very well-known and widely used language. It is in first place in the two lists of AI languages mentioned above. Python is one of the easiest programming languages to learn and is used in more introductory programming courses than any other. In addition, Python includes many powerful computational and meta-level capabilities, which facilitate the development of quite sophisticated programs. 
+\smallv
+
+Python supports the procedural, object-oriented, and functional programming paradigms. It does not support Prolog's logic programming paradigm. An objective of this work is to show how logic programming can be integrated into standard Python programming.
+
+\section{Related work}
+
+Quite a bit of work has been done in implementing Prolog features in Python, much of it fairly recently. As far as we can tell, none of it is as complete and as fully thought out as Pylog. But nearly all of it makes important contributions. Although, we cannot review the work in detail, following are brief (paraphrased) descriptions from the authors.
+
+\begin{itemize}[label=$~$]
+
+\item Berger (2004) \cite{berger2004}. Pythologic 
+\begin{quote}
+Python's meta-programming features are used to enable the writing of functions that include Prolog-like features.
+\end{quote}
+
+\item Bolz (2007) \cite{Bolz2007} A Prolog Interpreter in Python.  
+\begin{quote}
+A proof-of-concept implementation of a Prolog interpreter in RPython, a restricted subset of the Python language intended for system programming. Performance compares reasonably well with other embedded Prologs.
+\end{quote}
+
+\item Delford (2009) \cite{Delford2009} PyLog. 
+\begin{quote}
+A proof-of-concept implementation of a Prolog interpreter in RPython.
+\end{quote}
+
+\item Frederiksen (2011) \cite{Frederiksen2011} Pike
+\begin{quote}
+A form of Logic Programming that integrates with Python.
+\end{quote}
+
+\item Meyers (2015) \cite{Meyers2015} Prolog in Python. \begin{quote}A hobby project developed over a number of years.\end{quote}
+
+\item Maxime (2016) \cite{Maxime2016} Prology: Logic programming for Python3.
+\begin{quote}
+A minimal library that brings Logic Programming to Python.
+\end{quote}
+
+\item Piumarta (2017) \cite{Piumarta2017} Notes and slides from a course on programming paradigms.
+
+\item Thompson (2017) \cite{Thompson2017} Yield Prolog.
+\begin{quote}
+Enables the embedding of Prolog-style predicates directly in Python. \end{quote}
+
+\item Santini (2018) \cite{Santini2018} The pattern matching for python you always dreamed of.
+\begin{quote}
+Pampy is small, reasonably fast, and often makes code more readable.
+\end{quote}
+
+\item Cesar (2019) \cite{Cesar2019} Prol: a minimal Prolog interpreter in a few lines of Python. 
+
+\item Kopec (2019) \cite{Kopec2019} Constraint-Satisfaction Problems in Python.  
+\begin{quote} Chapter 3 of Kopec (2019) \textit{Classic Computer Science Problems in Python}.
+\end{quote}
+
+\item Miljkovic (2019)\cite{Miljkovic2019} 
+\begin{quote}
+A simple Prolog Interpreter written in a few lines of Python 3.
+\end{quote}
+
+\item Niemeyer and Celles (2019) \cite{Niemeyer2019} A python-constraint library.
+\begin{quote}
+Pure Python solvers for Constraint Satisfaction Problems.
+\end{quote}
+
+\item Rocklin (2019) \cite{Rocklin2019} kanren: Logic Programming in Python.
+\begin{quote}
+Enables the expression of relations and the search for values that satisfy them. (Rocklin is the author of the widely used Python toolz library.)
+\end{quote}
+
+\smallv
+
+\end{itemize}
+
+As this short survey illustrates, most of the ideas that provide the foundation for embedding Prolog-like capabilities in Python have been known for a while. What Pylog offers is a more fully developed, more fully explained, and more integrated version.

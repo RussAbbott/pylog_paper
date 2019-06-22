@@ -1,0 +1,269 @@
+\section{Zebra Problem}\label{subsec:zebra}
+The Zebra Puzzle, also known as the Einstein's Riddle, is a well known logic puzzle. 
+\smallv
+
+There are five houses in a row. Each is occupied by a family of unique nationality. Each has a unique favorite smoke, a unique pet, a unique favorite drink, and a unique color. Fourteen clues, see below, provide additional constraints. With the given information, determine: \textit{Who has a zebra and who drinks water?}
+\smallv
+
+One can easily write Prolog programs to solve this and similar puzzles.
+\begin{itemize}[label=$\bullet$]
+\item We represent a house as a Prolog term with five fields:
+\smallv
+
+\begin{python}
+    house(<nationality>, <smoke>, <pet>, <drink>, <color>)
+\end{python}
+\item Our "world" will be a list of 5 houses, with all fields initially uninstantiated.  
+\smallv
+
+\item The clues can be written as more-or-less direct translations of the English.
+\end{itemize}
+
+\begin{python}
+zebra_problem(Houses) :-
+    Houses = [house(_,_,_,_,_),house(_,_,_,_,_),house(_,_,_,_,_),
+              house(_,_,_,_,_),house(_,_,_,_,_)],
+    % 1. The English live in the red house.
+    member(house(english,_,_,_,red), Houses),
+    % 2. The Spanish have a dog.
+    member(house(spanish,_,dog,_,_), Houses),
+    % 3. They drink coffee in the green house.
+    member(house(_,_,_,coffee,green), Houses),
+    % 4. The Ukrainians drink tea.
+    member(house(ukranians,_,_,tea,_), Houses),
+    % 5. The green house is immediately to the right of the white house.
+    nextto(house(_,_,_,_,white), house(_,_,_,_,green), Houses),
+    % 6. The Old Gold smokers have snails.
+    member(house(_,old_gold,snails,_,_), Houses),
+    % 7. They smoke Kool in the yellow house.
+    member(house(_,kool,_,_,yellow), Houses),
+    % 8. They drink milk in the middle house.
+    Houses = [_, _, house(_,_,_,milk,_), _, _],
+    % 9. The Norwegians live in the first house on the left.
+    Houses = [house(norwegians,_,_,_,_) | _],
+    % 10. The Chesterfield smokers live next to the fox.
+    next_to(house(_,chesterfield,_,_,_), house(_,_,fox,_,_), Houses),
+    % 11. They smoke Kool in the house next to the horse.
+    next_to(house(_,kool,_,_,_), house(_,_,horse,_,_), Houses),
+    % 12. The Lucky smokers drink juice.
+    member(house(_,lucky,_,juice,_), Houses),
+    % 13. The Japanese smoke Parliament.
+    member(house(japanese,parliament,_,_,_), Houses),
+    % 14. The Norwegians live next to the blue house.
+    next_to(house(norwegians,_,_,_,_), house(_,_,_,_,blue), Houses),
+\end{python}
+
+We can run this using SWI-Prolog online. SWI-Prolog includes \textittt{member} and \textittt{nextto} predicates. SWI-Prolog's \textittt{nextto} means in the order given as in clue 5.
+\smallv 
+
+SWI-Prolog does not include a predicate for "next to" in the sense of clues 10, 11, and 14. We are not told the order in which the elements appear. But it is easy enough to write our own, called, say, \textittt{next\_to}.
+\begin{python}
+next_to(A, B, List) :- nextto(A, B, List).
+next_to(A, B, List) :- nextto(B, A, List).
+\end{python}
+A final issue needs resolution. None of the clues mention either a zebra or water. This implicit clue solves that problem.
+\begin{python}
+    % 15 (implicit). 
+    member(house(_,_,_,water,_), Houses),
+    member(house(_,_,zebra,_,_), Houses).
+\end{python}
+With all this in place we can get an almost instantaneous answer (manually formatted).
+
+\begin{minipage}{\linewidth}
+\begin{python}
+?- zebra_problem(Houses).
+[    
+    house(norwegians, kool, fox, water, yellow), 
+    house(ukranians, chesterfield, horse, tea, blue), 
+    house(english, old_gold, snails, milk, red), 
+    house(spanish, lucky, dog, juice, white), 
+    house(japanese, parliament, zebra, coffee, green)     
+]
+\end{python}
+\end{minipage}
+\smallv
+
+\textit{The Japanese have a zebra, and the Norwegians drink water.}
+\smallv
+
+Before going on to the Python version, let's look at how Prolog actually works. It's trivial to write a Prolog interpreter in Prolog, e.g., \cite{Barták1998}. The following \textittt{solve} predicate is given a list with a single \textittt{goal}, which it is asked to satisfy. Each Prolog clause is available as \textittt{clause(Head, Body)}, where  \textittt{Body} is a list of terms. (If \textittt{Head} is a Prolog fact, its \textittt{Body} is the empty list.)
+
+\begin{minipage}{\linewidth}
+\begin{python}
+solve([]).
+solve([Term|Terms]):-
+  clause(Term, Body),
+  append(Body, Terms, New_Terms),
+  solve(New_Terms).
+\end{python}
+\end{minipage}
+
+
+It feels like cheating to use Prolog to write a Prolog interpreter. Unification and backtracking are both taken for granted. So there is hardly any work to do! 
+\smallv
+
+After presenting our Python version of the problem we discuss the three Python approaches to rule interpretation we developed.
+\smallv
+
+% We can be more transparent in Python. In particular, we will write our own \textittt{clause(Term,~Body)}.  
+% \smallv
+
+% We will assume logic variables and unification. But as shown above, they are straightforward and don't involve backtracking. We will also assume a generator \textit{clauses(functor, arity)} that yields a stream of Python functions with the indicated function\_name and function\_arity. Our \textittt{clause(Term, Body)} can then be defined as follows.
+
+% \begin{minipage}{\linewidth}
+% \begin{python}
+% def clause(Term: Prolog_Term, Function: Var):
+%   for function in clauses(Term.functor, Term.arity):
+%     yield from unify(function, Function)
+% \end{python}
+% \end{minipage}
+% It's nearly as trivial in Python if we assume generators,  \textbftt{yield} and \textbftt{yield from}. The allows the following definition of \textittt{solve}.
+
+% \begin{minipage}{\linewidth}
+% \begin{python}
+% def solve(Terms: List[Prolog_Term]):
+%   if not Terms: 
+%     yield
+%   else:
+%     [Term, *More_Terms] = Terms
+%     Body = Var()
+%     # Whenever clause succeeds, Body will be unified with a list of terms.
+%     for _ in clause(Term, Function):
+%       Function(*Term.args())
+%       yield from solve(More_Terms)
+% \end{python}
+% \end{minipage}
+
+% Once again, unification is hidden in the execution of  \textittt{clause(Term,~Body)}. But it's worth noting that our straightforward use of \textbftt{yield} and  \textbftt{yield from} solves the entire backtracking problem.
+
+To write and run the Zebra problem in Pylog we built a more general framework. 
+\begin{itemize}[label=\begin{math}\bullet\end{math}]
+    \item We created a House class with named arguments.
+    \item Each clue is expressed as a Python \textbftt{def} function.
+    \item The \textittt{Houses} list may be either a \textittt{LinkedList} or a \textittt{PyList}, i.e., \textittt{SuperSequence}.
+    \item Users may select a house property as a pseudo-functor for displaying houses. We selected \textittt{nationality}. (See solution list below.)
+    \item We added some simple constraint checking.
+\end{itemize}
+Here's how a few of the clues look.
+\smallv
+
+% \begin{minipage}{\linewidth}
+\begin{python}
+  def clue_1(self, Houses: SuperSequence):
+    """ 1. The English live in the red house.  """
+    yield from member(House(nationality='English', color='red'), Houses)
+# ...
+  def clue_8(self, Houses: SuperSequence):
+    """ 8. They drink milk in the middle house.
+           Note the use of slice notation. Houses[2] picks the middle house. 
+           We can do this with both LinkedLists and PyLists.             """
+    yield from unify(House(drink='milk'), Houses[2])
+# ...
+  def clue_11(self, Houses: SuperSequence):
+    """ 11. They smoke Kool in the house next to the horse. """
+    yield from next_to(House(smoke='Kool'), House(pet='horse'), Houses)
+\end{python}
+% \end{minipage}
+% # ...
+%   def clue_15(self, Houses: SuperSequence):
+%     """ 15 (implicit) Fill in unmentioned properties. 
+%           members is like member but with a list as its first parameter. """
+%     yield from members([House(pet='zebra'), House(drink='water')], Houses)
+\smallv
+
+When run, the answer is the same. (The system helpfully reports clue evaluations.)
+\smallv
+
+\begin{minipage}{\linewidth}
+\begin{python}
+After 1392 rule applications,
+	1. Norwegians(Kool, fox, water, yellow)
+	2. Ukrainians(Chesterfield, horse, tea, blue)
+	3. English(Old Gold, snails, milk, red)
+	4. Spanish(Lucky, dog, juice, white)
+	5. Japanese(Parliament, zebra, coffee, green)
+The Japanese own a zebra, and the Norwegians drink water.
+\end{python}
+\end{minipage}
+
+As indicated above, we developed three Python approaches to rule interpretation. We show abbreviated versions of each.
+\begin{enumerate}
+
+\item \textit{forall}. We developed a \textit{forall} construct.\footnote{We also developed a parallel \textit{forany} construct} The zebra problem is coded as follows.
+
+\begin{python}
+def zebra_problem(Houses) :-
+    for _ in forall{[
+        % 1. The English live in the red house.
+        lambda: member(house(english,_,_,_,red), Houses),
+        % 2. The Spanish have a dog.
+        lambda: member(house(spanish,_,dog,_,_), Houses),
+        % ...
+        ]}
+\end{python}
+
+ \textit{forall} succeeds if and only if all members of the list succeed. Each list element must be protected within a \textit{lambda} construct to prevent premature evaluation.
+ \smallv
+ 
+ \textit{forall} itself is coded as follows.
+ 
+\begin{python}
+def forall(lambdas: List[Callable]):
+  if not lambdas:
+    # They have all succeeded.
+    yield
+  else:
+    # Execute lambdas[0]. (Note the parentheses after lambdas[0].)
+    for _ in lambdas[0]( ):
+      yield from forall(lambdas[1:])
+ 
+ \end{python}
+
+\item \textittt{run\_all\_rules}. We developed a Python function that accepts a list of functions along with a list, e.g., of houses, reflecting the state of the world. It succeeds if and only if they all succeed. Following is a somewhat simplified version.
+
+\begin{python}
+def run_all_clues(self, World_List: List[Term], clues: List[Callable]):
+    if not clues:
+      # Ran all the clues. Succeed.
+      yield
+    else:
+      # Run the current clue and then the rest of the clues.
+      for _ in clues[0](World_List):
+        yield from self.run_all_clues(World_List, clues[1:])
+\end{python}
+
+\item Embed rule chaining in the rules themselves. For example,
+
+\begin{python}
+  def clue_1(self, Houses: SuperSequence):
+    """ 1. The English live in the red house.  """
+    for _ in member(House(nationality='English', color='red'), Houses):
+      yield from clue_2(Houses)
+
+  def clue_2(self, Houses: SuperSequence):
+    """ 2. The Spanish have a dog. """
+    for _ in member(House(nationality='Spanish', pet='dog'), Houses):
+      yield from clue_3(Houses)
+  # ...
+\end{python}
+
+A call to \textit{clue\_1} runs the problem.
+\end{enumerate}
+
+\noindent The three approaches produce the same solution.
+\smallv
+\smallv
+\smallv
+
+Embedding rule chaining in the clauses themselves suggests a general template.
+
+\begin{python}
+      def some_clause(...):
+        for _ in <generate options>:
+          yield from next_clause(...)
+\end{python}
+
+This template illustrates how
+\begin{itemize}[label=$\bullet$]
+\item\textbftt{for} loops can implement backtracking while  \item\textbftt{yield} \textbftt{from} can serve as the glue between clauses. 
+\end{itemize}

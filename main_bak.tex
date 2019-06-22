@@ -1,0 +1,153 @@
+\documentclass{llncs} %{IEEEtran}
+%\documentclass[14pt]{article}
+%\documentclass[conference]{IEEEtran}
+
+\usepackage{multirow,listings,enumerate}
+%\usepackage{enumitem}
+\usepackage{epsfig,times,subfigure,graphics,amssymb,amsbsy,url,setspace,float,xcolor,tcolorbox,mdframed,listings,sectsty,hyphenat,enumitem}
+% \captionsetup[lstlisting]{labelsep=none}
+
+% \sectionfont{\fontsize{15}{15}\selectfont}
+
+\def\inv{\vspace*{-6pt}}
+\def\sinv{\vspace*{-3pt}}
+\def\smallinv{\vspace*{-3pt}}
+\def\smallinh{\hspace*{-3pt}}
+\def\smallv{\vspace*{3pt}}
+\newcommand{\textbftt}[1]{\textbf{\texttt{#1}}}
+\def\tbft[#1]{\textbf{\texttt{#1}}}
+
+
+%\definecolor{green}{rgb}{0,0.6,0}
+%\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{NavyBlue}{RGB}{15,15,170}
+%\usepackage{pythonhighlight}
+% See http://ftp.math.purdue.edu/mirrors/ctan.org/macros/latex/contrib/pythonhighlight/pythonhighlight.sty
+
+% pythonhl.sty is a copy of the original pythonhighlight
+\usepackage{pythonhl}
+
+% I changed these definitions in pythonhl.sty. Seems to work.
+% But I still can't get None to look like a keyword.
+% \colorlet{keywordcolour}{black}
+% \colorlet{stringcolour}{black}
+
+
+\definecolor{gray}{gray}{1.0}
+\colorlet{commentcolour}{black}
+\colorlet{stringcolour}{black}
+\colorlet{keywordcolour}{black}
+\colorlet{exceptioncolour}{black}
+\colorlet{commandcolour}{black}
+\colorlet{numpycolour}{black}
+\colorlet{literatecolour}{black}
+\colorlet{promptcolour}{black}
+\colorlet{specmethodcolour}{black}
+
+% % Use this for code snippets
+% \lstnewenvironment{python3}[1][]{
+% \lstset{
+% style=mypython,
+% basicstyle=\ttfamily\footnotesize,%\setstretch{.5}, % same as source
+% % Put the keywords you want in bold here
+% emph={and,break,class,continue,def,yield,del,elif ,else,%
+% except,exec,finally,for,from,global,if,import,in,%
+% lambda,not,or,pass,None,raise,return,try,while,assert,with},
+% % Put the keywords you DO NOT want in bold here
+% emph={[2]True, False}
+% }
+% }
+
+
+% \lstdefinestyle{pylogPython}{
+% language=Python, % Asking for Python 3 doesn't help.
+% %basicstyle=\sffamily\small, % print whole listing small. Doesn't seem to matter.
+% \sffamily
+% % I can't convince it to make None a keyword.
+% emph={[2]True, False, None}, % In the original.
+% emphstyle=[2]\color{keywordcolour}\bfseries
+% emph={[6]assert,None,yield},
+% emphstyle={[6]\color{keywordcolour}\bfseries},
+% emph={None,and,assert,break,class,continue,def,del,elif,else,%
+% except,exec,finally,for,from,global,if,import,in,%
+% lambda,not,or,pass,raise,return,try,while,with,yield},
+% emphstyle=\color{keywordcolour}\bfseries,
+% identifierstyle=\color{RGB}{0, 0, 0},
+% morekeywords={None}, 
+% otherkeywords={\%, \}, \{, \&, \|, None},
+% breaklines=true,
+% numbers=left, 
+% numberstyle=\small, 
+% stepnumber=1, 
+% numbersep=5pt, 
+% showspaces=false, 
+% keepspaces=true, 
+% captionpos=b,
+% keywordstyle=\color{black}\bfseries, 
+% %keywordstyle=\color{NavyBlue},
+% commentstyle=\color{green},
+% }
+
+% \lstdefinestyle{pylogProlog}{
+% language=Prolog, 
+% morekeywords={f'}, 
+% breaklines=true,
+% numbers=left, 
+% numberstyle=\small, 
+% stepnumber=1, 
+% numbersep=5pt, 
+% showspaces=false, 
+% keepspaces=true, 
+% captionpos=b,
+% keywordstyle=\color{black}\bf, 
+% %keywordstyle=\color{NavyBlue},
+% commentstyle=\color{gray}
+% }
+
+% \lstdefinestyle{pylog}{% general command to set parameter(s)
+% language=Python,
+% basicstyle=\small, % print whole listing small
+% keywordstyle=\color{black}\bfseries,
+% % underlined bold black keywords
+% identifierstyle=, % nothing happens
+% commentstyle=\color{white}, % white comments
+% stringstyle=\ttfamily, % typewriter type for strings
+% showstringspaces=false % no special string spaces
+% }
+
+% correct bad hyphenation here
+\hyphenation{}
+
+%\linespread{0.97}
+\usepackage{fancyhdr}
+ 
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RE,LO]{Pylog}
+\fancyhead[LE,RO]{\thepage}
+% \fancyhead[RE,LO]{Guides and tutorials}
+% \fancyfoot[CE,CO]{\leftmark}
+
+%\input{pythonhighlight.sty}
+
+\begin{document}
+
+%\input{pythonhighlight.sty}
+
+\title{PyLog:}
+\author{Russ Abbott \and Jungsoo Lim  \and Jay Patel }
+\authorrunning{R. Abbott et al.}
+\institute{California State University, Los Angeles, Department of Computer Science \\
+          \email{\{jpatel77, jlim34, rabbott\}@calstatela.edu}} 
+        
+\maketitle
+\input{abstract.tex}
+\input{introduction.tex}
+\input{relatedWork.tex}
+\input{body.tex}
+\input{cryptarithmetic.tex}
+\input{zebra_problem.tex}
+\input{conclusion.tex}
+\input{biblio.tex}
+\input{listings.tex}
+\end{document}
